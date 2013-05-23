@@ -42,12 +42,11 @@ public class ProxyServerWithNettyTest
 			System.err.println("User:" + user + "\tPassword:" + password);
 			System.err.println("Socket:" + s);
 //			return (user.equals(this.user) && password.equals(this.password));
-            return true;
+			return true;
 		}
 	}
 
 	private StubServerHandler serverHandler_ = new StubServerHandler();
-	private StubClientHandler clientHandler_ = new StubClientHandler();
 
 	private static AtomicInteger count_ = new AtomicInteger(0);
 
@@ -59,11 +58,6 @@ public class ProxyServerWithNettyTest
 			count_.getAndIncrement();
 			ctx.getChannel().close();
 		}
-	}
-
-	static class StubClientHandler extends SimpleChannelUpstreamHandler
-	{
-
 	}
 
 	@Test
@@ -79,11 +73,11 @@ public class ProxyServerWithNettyTest
 		UserPasswordAuthenticator auth = new UserPasswordAuthenticator(us);
 		ProxyServer server = new ProxyServer(auth);
 
-		server.setLog(System.out);
+		ProxyServer.setLog(System.out);
 		server.start(1080);
 
 		log_.info("Connecting client...");
-		new HttpTestClient(1080, clientHandler_).run();
+		new HttpTestClient(49200, 1080, new SimpleChannelUpstreamHandler()).run();
 
 		assertTrue(count_.get() > 0);
 	}

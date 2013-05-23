@@ -7,6 +7,7 @@ import org.jboss.netty.handler.codec.http.*;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.net.SocketAddress;
 import java.util.concurrent.Executors;
 
 /**
@@ -16,11 +17,14 @@ import java.util.concurrent.Executors;
 public class HttpTestClient
 {
 	private final int port;
+	private final int proxyPort;
+
 	private final SimpleChannelUpstreamHandler handler_;
 
-	public HttpTestClient(int port, SimpleChannelUpstreamHandler handler)
+	public HttpTestClient(int port, int proxyPort, SimpleChannelUpstreamHandler handler)
 	{
 		this.port = port;
+		this.proxyPort = proxyPort;
 		this.handler_ = handler;
 	}
 
@@ -30,7 +34,7 @@ public class HttpTestClient
 //		ClientBootstrap bootstrap = new ClientBootstrap(new NioClientSocketChannelFactory(
 //			Executors.newCachedThreadPool(), Executors.newCachedThreadPool()));
 
-		Proxy proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("localhost", port));
+		Proxy proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("localhost", proxyPort));
 		ClientBootstrap bootstrap = new ClientBootstrap(new OioProxyClientSocketChannelFactory(
 			Executors.newCachedThreadPool(), proxy));
 
@@ -49,8 +53,16 @@ public class HttpTestClient
 			}
 		});
 
+		SocketAddress address = new InetSocketAddress("localhost", port);
+
+		bootstrap.setOption("remoteAddress", address);
+		bootstrap.setOption("tcpNoDelay", true);
+		bootstrap.setOption("keepAlive", true);
+		bootstrap.setOption("configureBlocking", false);
+		bootstrap.setOption("connectTimeoutMillis", 5000);
+
 		// Start the connection attempt.
-		ChannelFuture future = bootstrap.connect(new InetSocketAddress("localhost", port));
+		ChannelFuture future = bootstrap.connect(address);
 
 		// Wait until the connection attempt succeeds or fails.
 		Channel channel = future.awaitUninterruptibly().getChannel();

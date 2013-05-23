@@ -1,10 +1,6 @@
 package com.github.jsocks;
 
-import com.github.jsocks.socks.ProxyServer;
-import com.github.jsocks.socks.server.UserPasswordAuthenticator;
 import com.github.jsocks.socks.server.UserValidation;
-import com.github.jsocks.stubs.netty.HttpTestClient;
-import com.github.jsocks.stubs.netty.HttpTestServer;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
@@ -14,17 +10,13 @@ import java.net.Socket;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
-import static org.junit.Assert.assertTrue;
-
 /**
- * Client/Server Netty test with ProxyServer.
- * 
- * Created with IntelliJ IDEA. User: denlion Date: 13-05-22 Time: 11:13 PM To change this template
+ * Created with IntelliJ IDEA. User: denlion Date: 13-05-23 Time: 12:56 AM To change this template
  * use File | Settings | File Templates.
  */
-public class ProxyServerWithNettyTest
+public class ProxyServerWithObjectNettyTest
 {
-	Logger log_ = Logger.getLogger(ProxyServerWithNettyTest.class.getName());
+	Logger log_ = Logger.getLogger(ProxyServerWithHttpNettyTest.class.getName());
 
 	static class UserValidationMock implements UserValidation
 	{
@@ -61,25 +53,8 @@ public class ProxyServerWithNettyTest
 	}
 
 	@Test
-	public void testNettyProxyInit()
+	public void testNettyProxySendRecieved()
 	{
-		log_.info("Starting server...");
-		count_.set(0);
-		new HttpTestServer(49200, serverHandler_).run();
 
-		log_.info("Starting the ProxyServer.");
-
-		UserValidationMock us = new UserValidationMock("user", "password");
-		UserPasswordAuthenticator auth = new UserPasswordAuthenticator(us);
-		ProxyServer server = new ProxyServer(auth);
-
-		ProxyServer.setLog(System.out);
-		server.start(1080);
-
-		log_.info("Connecting client...");
-		new HttpTestClient(49200, 1080, new SimpleChannelUpstreamHandler()).run();
-
-		assertTrue(count_.get() > 0);
 	}
-
 }

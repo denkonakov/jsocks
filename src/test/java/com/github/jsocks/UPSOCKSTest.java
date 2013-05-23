@@ -2,10 +2,19 @@ package com.github.jsocks;
 
 import com.github.jsocks.socks.*;
 import com.github.jsocks.socks.server.*;
+import com.github.jsocks.stubs.TestClient;
+import com.github.jsocks.stubs.TestServer;
+import com.github.jsocks.stubs.TestService;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.util.logging.Logger;
+
+import static junit.framework.Assert.assertTrue;
+import static junit.framework.TestCase.assertNotNull;
 
 /**
  * Test for the UserPassword Auth and for ProxyServer
@@ -36,6 +45,10 @@ public class UPSOCKSTest
 	@Test
 	public void testUPAuth()
 	{
+        log_.info("Starting the Test Services.");
+
+        TestServer.startServerWithAllServices();
+
         log_.info("Starting the ProxyServer.");
 
 		UserValidationMock us = new UserValidationMock("user", "password");
@@ -44,6 +57,20 @@ public class UPSOCKSTest
 
 		server.setLog(System.out);
 		server.start(1080);
+
+        log_.info("Creating the Test Client.");
+
+        try {
+            Socket directSock = new Socket("localhost", TestService.servicePorts[TestService.CONNECT]);
+
+            InputStream in = directSock.getInputStream();
+            OutputStream out = directSock.getOutputStream();
+
+            assertNotNull(in);
+            assertNotNull(out);
+        } catch (IOException e) {
+            assertTrue(false);
+        }
 
         log_.info("Stopping the ProxyServer.");
 

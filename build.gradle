@@ -12,7 +12,8 @@ repositories {
 }
 
 dependencies {
-    testCompile 'junit:junit:4.11'
+    testCompile 'junit:junit:4.11',
+            'org.jboss.netty:netty:3.2.7.Final'
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
